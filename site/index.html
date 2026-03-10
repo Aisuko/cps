@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Circuit Preference Steering (CPS) — Interactive Paper Site</title>
+  <meta name="description" content="Interactive companion to 'Circuit-Level Preference Steering under Knowledge Conflict in Large Language Models' (WSDM '27): explore head roles, circuits, steering and results." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='14' height='14' x='2' y='2' rx='3' fill='%234f8cff'/%3E%3Crect width='14' height='14' x='16' y='16' rx='3' fill='%23ff5a63'/%3E%3Crect width='14' height='14' x='16' y='2' rx='3' fill='%23ff5a63' opacity='.35'/%3E%3Crect width='14' height='14' x='2' y='16' rx='3' fill='%234f8cff' opacity='.35'/%3E%3C/svg%3E" />
+  <script>
+    try { const t = localStorage.getItem('cps-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="nav" id="top">
+    <a class="brand" href="#top"><span class="logo-dot"></span>CPS</a>
+    <nav aria-label="Sections">
+      <a href="#summary">Summary</a>
+      <a href="#problem">Problem</a>
+      <a href="#method">Method</a>
+      <a href="#explore">Explore</a>
+      <a href="#case">Case study</a>
+      <a href="#results">Results</a>
+      <a href="#ack">Acknowledgements</a>
+    </nav>
+    <button class="theme" id="theme" type="button" aria-label="Toggle colour theme">◐</button>
+  </header>
+
+  <section class="hero">
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <p class="eyebrow">WSDM ’27 · Hong Kong · February 15–19, 2027</p>
+      <h1>Circuit-Level Preference Steering under Knowledge Conflict in Large Language Models</h1>
+      <p class="lede">When what a model <span class="blue-t">reads</span> disagrees with what it <span class="red-t">remembers</span>, CPS lets you decide which one wins — by turning the right attention heads up and the competing ones down. No training required.</p>
+      <div class="cta">
+        <a class="btn primary" href="#explore">Try the interactive demos</a>
+        <a class="btn" href="#summary">Read the summary</a>
+        <a class="btn ghost" href="https://github.com/Aisuko/cps" target="_blank" rel="noopener">Source code</a>
+      </div>
+      <ul class="authors">
+        <li>Jiazhu Xie<sup>1*</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=D3-py-8AAAAJ&hl=en" target="_blank" rel="noopener">Bowen Li</a><sup>1*</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=znODztEAAAAJ" target="_blank" rel="noopener">Ziqi Xu</a><sup>1</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=yx6HsssAAAAJ" target="_blank" rel="noopener">Renqiang Luo</a><sup>2</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=HDFA2VYAAAAJ" target="_blank" rel="noopener">Feng Xia</a><sup>1</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=lJNy2Kc58cIC" target="_blank" rel="noopener">Fengling Han</a><sup>1</sup></li>
+      </ul>
+      <p class="affil"><sup>1</sup> RMIT University, Melbourne, Australia &nbsp;·&nbsp; <sup>2</sup> Jilin University, Changchun, China &nbsp;·&nbsp; <sup>*</sup> equal contribution</p>
+      <ul class="chips"><li>Knowledge Conflict</li><li>Large Language Models</li><li>Mechanistic Interpretability</li><li>Preference Steering</li></ul>
+    </div>
+  </section>
+
+  <main>
+    <!-- SUMMARY -->
+    <section id="summary" class="sec">
+      <p class="kicker">01 · Summary</p>
+      <h2>One idea: steer knowledge preference through coordinated attention-head <em>circuits</em></h2>
+      <div class="two">
+        <div class="prose">
+          <p>Large language models carry <b>parametric knowledge</b> learned in pre-training and receive <b>contextual knowledge</b> at inference time (retrieval, in-context examples). When the two <i>conflict</i>, behaviour becomes unpredictable — it varies with model scale, training frequency and the strength of the evidence.</p>
+          <p>Existing control happens at the <b>prompt, training or output-distribution level</b>. Mechanistic work finds specialised attention heads, but usually studies heads <b>one at a time</b>, and per-head interventions get expensive as candidates grow.</p>
+          <p><b>Circuit Preference Steering (CPS)</b> jointly characterises head roles under two contrasting, externally specified preference conditions — favour the context, or favour parametric memory. By looking at how each head’s role <i>transitions</i> between the conditions, CPS identifies a <span class="blue-t"><b>contextual circuit C<sub>c</sub></b></span> and a <span class="red-t"><b>parametric circuit C<sub>p</sub></b></span>, then scales their outputs at inference: <b>lightweight, training-free and bidirectional</b>.</p>
+          <p class="callout">CPS does not decide which source is <i>more trustworthy</i>. The preference is specified externally (e.g. “prefer the verified database”, “down-weight unreliable retrieved text”); CPS executes it.</p>
+        </div>
+        <div class="contribs">
+          <div class="card"><span class="n">1</span><p>Studies preference steering from an <b>internal-model perspective</b>, focusing on coordinated head behaviour.</p></div>
+          <div class="card"><span class="n">2</span><p>Proposes <b>CPS</b>: joint head analysis + role-transition circuits + training-free bidirectional steering.</p></div>
+          <div class="card"><span class="n">3</span><p>Experiments on <b>3 LLMs × 6 benchmarks</b>, with transfer to unseen conflict distributions <b>without re-localisation</b>.</p></div>
+        </div>
+      </div>
+      <div class="stats-row" id="stats-row">
+        <div class="stat"><b data-count="3">0</b><span>decoder-only LLMs<br><small>Gemma-2-9B · Llama-3.1-8B · Mistral-7B</small></span></div>
+        <div class="stat"><b data-count="6">0</b><span>conflict benchmarks<br><small>4 in-distribution + 2 unseen</small></span></div>
+        <div class="stat"><b data-count="0.233" data-to="0.389" data-dec="3">0</b><span>Gemma NQ-Swap, Context-Pref. EM<br><small>Vanilla → CPS</small></span></div>
+        <div class="stat"><b data-count="1.2" data-dec="1" data-pre="+" data-suf="%">0</b><span>latency vs. Vanilla<br><small>no extra tokens or passes</small></span></div>
+      </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section id="problem" class="sec alt">
+      <p class="kicker">02 · The problem</p>
+      <h2>A controlled conflict: same evidence, two different goals</h2>
+      <div class="two">
+        <div class="prose">
+          <p>Each instance is a tuple <code>(question, org_context, counter_context, org_answer, counter_answer)</code>. Using the <code>counter_context</code> as input creates a conflict: the evidence contradicts what the model memorised.</p>
+          <ul class="bul">
+            <li><b class="blue-t">Context-Preference (Cont.)</b> — the desired prediction follows the contextual information.</li>
+            <li><b class="red-t">Parametric-Preference (Para.)</b> — the desired prediction follows parametric knowledge.</li>
+          </ul>
+          <p>Both conditions share <b>identical contextual evidence</b>; only the target answer differs. That isolates each knowledge source’s contribution and makes head roles directly comparable. Flip the switch to see it →</p>
+        </div>
+        <div class="demo" id="problem-demo"></div>
+      </div>
+    </section>
+
+    <!-- METHOD -->
+    <section id="method" class="sec">
+      <p class="kicker">03 · Method</p>
+      <h2>Setup stage → Inference stage</h2>
+      <figure class="fig">
+        <button class="zoom" type="button" data-zoom="img/KC_Framework.jpg" aria-label="Enlarge framework figure">
+          <img src="img/KC_Framework.jpg" alt="Overview of the Circuit Preference Steering framework: head role identification, functional circuit construction, and the context-preference and parametric-preference policies at inference." loading="lazy" />
+        </button>
+        <figcaption>Figure 1 of the paper — overview of the CPS framework. Click to enlarge.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>
+          <h3>Head role identification</h3>
+          <p>Causal Head Gating (CHG) jointly learns a gate <code>g<sub>ℓ,h</sub> ∈ [0,1]</code> for every head, modulating its output <code>o → g·o</code> under a next-token loss with a regulariser <code>λ·Σσ⁻¹(g)</code>. Retention (<code>λ&gt;0</code>) and suppression (<code>λ&lt;0</code>) give gates <code>G⁺</code> and <code>G⁻</code>, yielding roles <b>Fac</b> (active under suppressive pressure), <b>Inter</b> (removed despite retention) and <b>Irr</b> (negligible). CPS runs this under <i>both</i> preference conditions.</p>
+        </li>
+        <li>
+          <h3>Role-transition analysis</h3>
+          <p>A head that looks facilitating in one condition is ambiguous alone. Comparing roles across conditions resolves it: heads that facilitate one preference but are interfering or irrelevant under the other are functionally specialised. Interfering and irrelevant are grouped because neither supports the preference.</p>
+        </li>
+        <li>
+          <h3>Circuit construction</h3>
+          <p><b class="red-t">C<sub>p</sub></b> = { r<sup>(Para.)</sup>=Fac ∧ r<sup>(Cont.)</sup>∈{Inter,Irr} } and <b class="blue-t">C<sub>c</sub></b> = { r<sup>(Cont.)</sup>=Fac ∧ r<sup>(Para.)</sup>∈{Inter,Irr} }. Members are ranked by their gate <code>g⁻</code> and the top-<i>K</i> form <code>S<sub>c</sub><sup>(K)</sup></code> and <code>S<sub>p</sub><sup>(K)</sup></code>. Masking each circuit tests whether it is functionally associated with its knowledge source.</p>
+        </li>
+        <li>
+          <h3>Generation control</h3>
+          <p>Head outputs are scaled by <code>s = 1+α</code> for <code>C<sub>c</sub></code>, <code>1+β</code> for <code>C<sub>p</sub></code> and 1 otherwise. With strength <code>δ&gt;0</code>: Context policy <code>(α,β) = (+δ, −δ/(1+δ))</code>; Parametric policy <code>(α,β) = (−δ/(1+δ), +δ)</code>. No parameter updates, no extra pass.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- EXPLORE -->
+    <section id="explore" class="sec alt">
+      <p class="kicker">04 · Explore</p>
+      <h2>Demo 1 — Build the circuits yourself</h2>
+      <p class="sub">Step through the setup stage on a toy head grid: roles under each condition, role transitions, and the resulting circuits.</p>
+      <div class="demo big" id="circuit-demo"></div>
+
+      <h2 class="mt">Demo 2 — Steering playground</h2>
+      <p class="sub">Pick a policy and a strength δ. Watch the circuit heads scale, read off the paper’s (α, β), and see how ConflictBank accuracy moves with δ.</p>
+      <div class="demo big" id="steering-demo"></div>
+    </section>
+
+    <!-- CASE -->
+    <section id="case" class="sec">
+      <p class="kicker">05 · Case study</p>
+      <h2>Redirecting a model from memory to evidence</h2>
+      <p class="sub">Gemma-2-9B on NQ-Swap under the Context-Preference policy (K = 8 heads per circuit). The context states a counterfactual fact; Vanilla often answers from memory. CPS shifts the answer to the one supported by the context — while leaving already-aligned answers intact.</p>
+      <div class="demo big" id="case-demo"></div>
+      <details class="paper-fig">
+        <summary>Show the paper’s original Figure — circuit map &amp; qualitative examples</summary>
+        <figure class="fig">
+          <button class="zoom" type="button" data-zoom="img/case_study.png" aria-label="Enlarge case study figure">
+            <img src="img/case_study.png" alt="Left: functional circuits map for Gemma-2-9B on NQ-Swap showing contextual circuit heads in blue and parametric circuit heads in red across layers and heads. Right: three qualitative examples comparing Vanilla and CPS answers." loading="lazy" />
+          </button>
+          <figcaption>Functional circuit visualisation (blue: contextual, red: parametric; ↑ boosted, ↓ suppressed top-K heads) and qualitative examples.</figcaption>
+        </figure>
+      </details>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results" class="sec alt">
+      <p class="kicker">06 · Results</p>
+      <h2>Evidence across models, benchmarks and baselines</h2>
+      <div class="setup-grid">
+        <div class="card"><h4>Models</h4><p>Llama-3.1-8B, Mistral-7B-v0.1, Gemma-2-9B</p></div>
+        <div class="card"><h4>Datasets</h4><p>ConflictBank, ConflictQA, NQ-Swap, PopQA-Swap; unseen: DynamicQA, WikiContradict</p></div>
+        <div class="card"><h4>Baselines</h4><p>Vanilla · Random-<i>K</i> · Prompt · PH3 · JuICE</p></div>
+        <div class="card"><h4>Metric</h4><p>Exact Match against the <i>target</i> answer of each condition; mean ± std over seeds 0, 1, 2</p></div>
+      </div>
+      <div class="demo big" id="results-demo"></div>
+
+      <h3 class="mt2">Intervention-based circuit validation</h3>
+      <p class="sub">If the circuits really are tied to different knowledge sources, silencing them should move preference in opposite directions.</p>
+      <div class="demo big" id="masking-demo"></div>
+
+      <div class="takeaways">
+        <div class="card"><h4>Context steering works best</h4><p>CPS gives the strongest mean EM across most model–dataset pairs, e.g. Llama-3.1-8B on NQ-Swap 0.189 → 0.324.</p></div>
+        <div class="card"><h4>Parametric steering is harder</h4><p>Gains are smaller — models are susceptible to contextual influence — but CPS is best or competitive, e.g. NQ-Swap 0.111 → 0.200 on Llama.</p></div>
+        <div class="card"><h4>Both operations matter</h4><p>Boosting the target circuit <i>and</i> suppressing the competing one beats either alone.</p></div>
+        <div class="card"><h4>It transfers</h4><p>Circuits localised on NQ-Swap lift performance on unseen DynamicQA and WikiContradict without re-localisation.</p></div>
+      </div>
+    </section>
+
+    <!-- LIMITS -->
+    <section id="limits" class="sec">
+      <p class="kicker">07 · Scope &amp; ethics</p>
+      <h2>What the paper does — and does not — claim</h2>
+      <div class="two">
+        <div class="prose">
+          <h4>Limitations the authors state</h4>
+          <ul class="bul">
+            <li>Three runs per setting: results are <b>descriptive comparisons</b>, not evidence of statistical significance; some gains are small relative to run-to-run variation.</li>
+            <li>Targeted masking provides functional evidence on <b>Gemma-2-9B</b> only; extending it to other models, and studying interactions and pathways <i>within</i> the head groups, is future work.</li>
+            <li>Baselines focus on attention-head interventions; comparison with broader activation-steering and context-aware decoding methods is out of scope.</li>
+            <li>The ablation uses a subset of the test set due to limited compute.</li>
+          </ul>
+        </div>
+        <div class="prose">
+          <h4>Ethical considerations</h4>
+          <p>The work uses public benchmarks and open-weight models, with no personal data. Steering a model toward context or memory has <b>dual-use risk</b>: a poor policy could promote misleading evidence or inaccurate memory. CPS executes a specified preference — it is <b>not a substitute for source verification or factuality checks</b>. In high-stakes domains (healthcare, law, finance) it should be paired with reliable evidence validation, transparent intervention policies and human oversight.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACK -->
+    <section id="ack" class="sec alt">
+      <p class="kicker">08 · Acknowledgements</p>
+      <h2>Acknowledgements</h2>
+      <div class="ack">
+        <a class="race" href="https://www.rmit.edu.au/" target="_blank" rel="noopener" aria-label="RMIT RACE"><img src="img/rmit_race.svg" alt="RMIT RACE logo" loading="lazy" /></a>
+        <div class="prose">
+          <p>This research was undertaken with the assistance of computing resources from RACE (RMIT Advanced Computing Ecosystem).</p>
+          <p>We would also like to extend our special thanks to <a href="https://www.linkedin.com/in/patrick-d-taylor/" target="_blank" rel="noopener">Patrick Taylor</a> for his valuable technical support and assistance throughout this research.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cite" class="sec">
+      <p class="kicker">Cite</p>
+      <h2>Reference</h2>
+      <pre class="cite" id="cite-text">Jiazhu Xie, Bowen Li, Ziqi Xu, Renqiang Luo, Feng Xia, and Fengling Han.
+Circuit-Level Preference Steering under Knowledge Conflict in Large Language Models.
+In Proceedings of the Twentieth ACM International Conference on Web Search and Data Mining (WSDM ’27),
+February 15–19, 2027, Hong Kong, Hong Kong. ACM. DOI: 10.1145/3862322.3863438</pre>
+      <button class="btn" id="copy-cite" type="button">Copy citation</button>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Interactive companion site. All content is derived from the paper; the head grids in the demos are illustrative toy maps.</p>
+    <p><a href="#top">↑ Back to top</a></p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" hidden><img alt="" /></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
